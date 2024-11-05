@@ -6,23 +6,19 @@ from pathlib import Path
 import os
 import argparse
 from datetime import datetime
-import validators  # Import the validators package
+import validators
 
-# Load environment variables
 load_dotenv()
 
-# Environment Variables for Configuration
-QR_DIRECTORY = os.getenv('QR_CODE_DIR', 'qr_codes')  # Directory for saving QR code
-FILL_COLOR = os.getenv('FILL_COLOR', 'red')  # Fill color for the QR code
-BACK_COLOR = os.getenv('BACK_COLOR', 'white')  # Background color for the QR code
+QR_DIRECTORY = os.getenv('QR_CODE_DIR', 'qr_codes')
+FILL_COLOR = os.getenv('FILL_COLOR', 'black')
+BACK_COLOR = os.getenv('BACK_COLOR', 'white')
 
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-        ]
+        handlers=[logging.StreamHandler(sys.stdout)]
     )
 
 def create_directory(path: Path):
@@ -41,7 +37,7 @@ def is_valid_url(url):
 
 def generate_qr_code(data, path, fill_color='red', back_color='white'):
     if not is_valid_url(data):
-        return  # Exit the function if the URL is not valid
+        return
 
     try:
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -57,25 +53,19 @@ def generate_qr_code(data, path, fill_color='red', back_color='white'):
         logging.error(f"An error occurred while generating or saving the QR code: {e}")
 
 def main():
-    # Set up command-line argument parsing
     parser = argparse.ArgumentParser(description='Generate a QR code.')
-    parser.add_argument('--url', help='The URL to encode in the QR code', default='https://github.com/kaw393939')
+    parser.add_argument('--url', help='The URL to encode in the QR code', default='https://github.com/Manan2606')
     args = parser.parse_args()
 
-    # Initial logging setup
     setup_logging()
-    
-    # Generate a timestamped filename for the QR code
+
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     qr_filename = f"QRCode_{timestamp}.png"
 
-    # Create the full path for the QR code file
     qr_code_full_path = Path.cwd() / QR_DIRECTORY / qr_filename
-    
-    # Ensure the QR code directory exists
+
     create_directory(Path.cwd() / QR_DIRECTORY)
-    
-    # Generate and save the QR code
+
     generate_qr_code(args.url, qr_code_full_path, FILL_COLOR, BACK_COLOR)
 
 if __name__ == "__main__":
